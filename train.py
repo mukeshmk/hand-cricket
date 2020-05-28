@@ -10,7 +10,9 @@ CLASS_MAP = {
     "empty": 0,
     "1": 1,
     "2": 2,
-    "3": 3
+    "3": 3,
+    "4": 4,
+    "5": 5
 }
 
 def mapper(value):
@@ -31,6 +33,9 @@ def create_model(input_shape, num_classes):
         keras.layers.Conv2D(128, (3,3), activation='relu'),
         keras.layers.MaxPooling2D(2,2),
         # The fourth convolution
+        keras.layers.Conv2D(128, (3,3), activation='relu'),
+        keras.layers.MaxPooling2D(2,2),
+        # The fifth convolution
         keras.layers.Conv2D(128, (3,3), activation='relu'),
         keras.layers.MaxPooling2D(2,2),
         # Flatten the results to feed into a DNN
@@ -85,7 +90,7 @@ def main():
         model.fit(np.array(dataset), np.array(labels), epochs=15)
 
         # save the model for later use
-        model.save("test-model.h5")
+        model.save("hand-gesture-model.h5")
 
 
 if __name__ == "__main__":
