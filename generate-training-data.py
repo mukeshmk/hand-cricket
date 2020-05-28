@@ -11,7 +11,7 @@ def capture_images(label, label_path, sample_size):
     if not cap.isOpened():
         print("Error opening video")
 
-    start = False
+    capture = False
     count = 0
 
     while True:
@@ -27,20 +27,34 @@ def capture_images(label, label_path, sample_size):
 
         # if required number of images have been captured
         if count == sample_size:
-            pass#break
-
+            break
+        
+        # to start capturing images for training once the key is hit
+        if capture:
+            # getting the region of intrest for capture
+            capture_region = frame[75:300, 75:300]
+            # creating the image path
+            img_path = os.path.join(label_path, '{}.jpg'.format(count + 1))
+            # saving the image
+            cv2.imwrite(img_path, capture_region)
+            count += 1
+        
         # drawing a rectangle to indicate which section of the image is being saved 
         # params: img, point1, point 2, colour, thinkness of line
-        cv2.rectangle(frame, (75, 75), (300, 300), (255, 255, 255), 2)
-        
+        cv2.rectangle(frame, (75, 75), (300, 300), (0, 0, 255), 2)
+
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        # for displaying the text
+        cv2.putText(frame, "Images Collected: {}".format(count), (70, 325), font, 0.7, (0, 0, 255), 2, cv2.LINE_AA)
+
         # Displaying the Images which are to be catured
-        cv2.imshow("Collecting images", frame)
-        
+        cv2.imshow("Collecting Images", frame)
+
         k = cv2.waitKey(10)
+        if k == ord('c'):
+            capture = not capture
         if k == ord('q'):
             break
-
-        count+=1
 
     cap.release()
     cv2.destroyAllWindows()
