@@ -45,7 +45,6 @@ def create_model(input_shape, num_classes):
 def get_dataset(img_shape):
     # load images from the training data directory
     dataset = []
-    lables = []
     for label_dir in os.listdir(TRAINING_DATA_DIR):
         # iterating each item in the training data directory
         path = os.path.join(TRAINING_DATA_DIR, label_dir)
@@ -59,10 +58,9 @@ def get_dataset(img_shape):
             img = cv2.resize(img, img_shape)
             
             # adding them to the dataset
-            dataset.append(img)
-            lables.append(label_dir)
+            dataset.append([img, label_dir])
     
-    return dataset, lables
+    return zip(*dataset)
 
 def main():
 
@@ -84,7 +82,7 @@ def main():
         model.summary()
 
         # start training
-        model.fit(np.array(dataset), np.array(labels), epochs=10)
+        model.fit(np.array(dataset), np.array(labels), epochs=15)
 
         # save the model for later use
         model.save("test-model.h5")
