@@ -1,5 +1,8 @@
 import os
 import cv2
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
 
 TRAINING_DATA_DIR = "training_data"
 
@@ -12,6 +15,32 @@ CLASS_MAP = {
 
 def mapper(value):
     return CLASS_MAP[value]
+
+def create_model(input_shape, num_classes):
+    model = keras.models.Sequential([
+        # NOTE the input shape is the desired size of the image with 3 bytes color
+        # This is the first convolution
+        # With 64 filters and a kernel_size of (3, 3)
+        # DOCS: https://www.tensorflow.org/api_docs/python/tf/keras/layers/Conv2D
+        keras.layers.Conv2D(64, (3,3), activation='relu', input_shape=input_shape),
+        keras.layers.MaxPooling2D(2, 2),
+        # The second convolution
+        keras.layers.Conv2D(64, (3,3), activation='relu'),
+        keras.layers.MaxPooling2D(2,2),
+        # The third convolution
+        keras.layers.Conv2D(128, (3,3), activation='relu'),
+        keras.layers.MaxPooling2D(2,2),
+        # The fourth convolution
+        keras.layers.Conv2D(128, (3,3), activation='relu'),
+        keras.layers.MaxPooling2D(2,2),
+        # Flatten the results to feed into a DNN
+        keras.layers.Flatten(),
+        keras.layers.Dropout(0.5),
+        # 512 neuron hidden layer
+        keras.layers.Dense(512, activation='relu'),
+        keras.layers.Dense(num_classes, activation='softmax')
+    ])
+    return model
 
 def get_dataset(img_shape):
     # load images from the training data directory
@@ -35,13 +64,31 @@ def get_dataset(img_shape):
     
     return dataset, lables
 
-
 def main():
 
     img_shape = (225, 225)
-    dataset, lables = get_dataset(img_shape)
+    dataset, labels = get_dataset(img_shape)
 
-    print(str(len(dataset)) + " : " + str(len(lables)))
+    # label encode the classes
+    labels = list(map(mapper, labels))
+
+    input_shape = (225, 225, 3)
+    model = create_model(input_shape, len(CLASS_MAP))
+
+    with tf.device('/device:GPU:0'):
+
+        model.compile(loss='sparse_categorical_crossentropy',
+                      optimizer=keras.optimizers.Adam(1e-3, amsgrad=True),
+                      metrics=['accuracy'])
+
+        model.summary()
+
+        # start training
+        model.fit(np.array(dataset), np.array(labels), epochs=10)
+
+        # save the model for later use
+        model.save("test-model.h5")
+
 
 if __name__ == "__main__":
     main()
