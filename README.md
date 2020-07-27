@@ -3,7 +3,7 @@
 An attempt to identify number from hand gestures using OpenCV Image Recognition.
 
 # To run the program on your machine:
-1. clone the repo: `git clone https://github.com/mukeshmk/hand-cricket.git`
+1. clone the repo: `https://github.com/mukeshmk/hand-gesture.git`
 2. create a virtual environment inside the folder: `python -m venv .venv`
 3. activate the virtual environment: `.venv\Scripts\activate` (in case of Windows)
 4. install the required packages for the game to run using: `pip install -r requirements.txt`
